@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8">
+    <title>{{ app_name }} - Register</title>
+    <link rel="stylesheet" href="/static/bootstrap-5.3.3-dist/css/bootstrap.min.css">
+    <script src="/static/bootstrap-5.3.3-dist/js/bootstrap.min.js"></script>
+  </head>
+  <body class="container mt-5">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <h1 class="text-center mb-4">Register</h1>
+        {% if error %}
+          <div class="alert alert-danger" role="alert">
+            {{ error }}
+          </div>
+        {% endif %}
+        {% if success %}
+          <div class="alert alert-success" role="alert">
+            {{ success }}
+          </div>
+        {% endif %}
+        <form method="POST" action="{{ url_for('register') }}">
+          <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="text" class="form-control" id="email" name="email" required>
+          </div>
+          <div class="mb-3">
+            <label for="vname" class="form-label">Vorname</label>
+            <input type="text" class="form-control" id="vname" name="vname" required>
+          </div>
+          <div class="mb-3">
+            <label for="nname" class="form-label">Nachname</label>
+            <input type="text" class="form-control" id="nname" name="nname" required>
+          </div>
+          <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <input type="text" class="form-control" id="username" name="username" required>
+          </div>
+          <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" class="form-control" id="password" name="password" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Register</button>
+        </form>
+        <form action="{{ url_for('login') }}">
+          <p class="mt-3">Already have an account? <button type="submit" class="btn btn-link">Log in here</button></p>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>

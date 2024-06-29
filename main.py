@@ -1,7 +1,7 @@
 import os
 from flask import Flask, render_template, request, redirect, session, url_for
 from flask_sqlalchemy import SQLAlchemy
-import datetime
+from datetime import datetime
 import random
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -54,6 +54,46 @@ if not os.path.exists('instance/db.db'):
 @app.route('/')
 def index():
     return render_template('index.html', app_name=app_name)
+
+
+@app.route('/dashboard', methods=['GET', 'POST'])
+def dashboard():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    return render_template('dashboard.html', app_name=app_name)
+
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if 'user_id' in session:
+        return redirect(url_for('dashboard'))
+    if request.method == 'POST':
+        email = request.form['email']
+        nname = request.form['nname']
+        vname = request.form['vname']
+        username = request.form['username']
+        raw_password = request.form['password']
+        hash_password = generate_password_hash(raw_password)
+
+        existing_user_email = User.query.filter_by(email=email).first()
+        existing_user_username = User.query.filter_by(username=username).first()
+
+        if existing_user_email or existing_user_username:
+            flash('Email or Username already exists. Please choose a different Email or Username', 'error')
+            return redirect(url_for('register'))
+
+        user = User(email=email, vorname=vname, nachname=nname, username=username, password=hash_password)
+        db.session.add(user)
+        db.session.commit()
+        return redirect(url_for('login', success='Account created successfully. Please login.'))
+    return render_template('register.html', error=request.args.get('error'), success=request.args.get('success'),
+                           app_name=app_name)
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if 'user_id' in session:
+        return redirect(url_for('dashboard'))
 
 
 if __name__ == '__main__':
