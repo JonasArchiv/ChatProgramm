@@ -60,7 +60,7 @@ def index():
 def dashboard():
     if 'user_id' not in session:
         return redirect(url_for('login'))
-    return render_template('dashboard.html', app_name=app_name)
+    return render_template('dashboard.html', app_name=app_name, user_name=session.username)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -93,7 +93,25 @@ def register():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if 'user_id' in session:
-        return redirect(url_for('dashboard'))
+        return redirect('/dashboard')
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        user = User.query.filter_by(username=username).first()
+        if user and check_password_hash(user.password, password):
+            session['user_id'] = user.id
+
+        return redirect(url_for('login', error='Invalid username or password'))
+    return render_template('login.html', error=request.args.get('error'), success=request.args.get('success'), app_name=app_name)
+
+
+@app.route('/logout')
+def logout():
+    if 'user_id' not in session:
+        return redirect(url_for('login', error='You are not logged in'))
+    session.pop('user_id', None)
+    session.pop('private_key', None)
+    return redirect(url_for('login', success='You have logged out successfully.'))
 
 
 if __name__ == '__main__':
