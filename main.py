@@ -102,7 +102,8 @@ def login():
             session['user_id'] = user.id
 
         return redirect(url_for('login', error='Invalid username or password'))
-    return render_template('login.html', error=request.args.get('error'), success=request.args.get('success'), app_name=app_name)
+    return render_template('login.html', error=request.args.get('error'), success=request.args.get('success'),
+                           app_name=app_name)
 
 
 @app.route('/logout')
@@ -112,6 +113,34 @@ def logout():
     session.pop('user_id', None)
     session.pop('private_key', None)
     return redirect(url_for('login', success='You have logged out successfully.'))
+
+
+@app.route('/chat/<int:user_id>', methods=['GET', 'POST'])
+def chat(user_id):
+    if 'user_id' not in session:
+        return redirect(url_for('login', error='You are not logged in'))
+
+    user_id_current = session.get('user_id')
+    user_current = User.query.get(user_id_current)
+
+    user_partner = User.query.get(user_id)
+
+    if not user_partner:
+        return redirect(url_for('index', error='User not found'))
+
+    if request.method == 'POST':
+        message_text = request.form['message']
+
+        message = MessageChat(sender_id=user_id_current, receiver_id=user_id, text=message_text)
+        db.session.add(message)
+        db.session.commit()
+
+    messages = MessageChat.query.filter(
+        ((MessageChat.sender_id == user_id_current) & (MessageChat.receiver_id == user_id)) |
+        ((MessageChat.sender_id == user_id) & (MessageChat.receiver_id == user_id_current))
+    ).order_by(MessageChat.created_at)
+
+    return render_template('chat.html', user_partner=user_partner, messages=messages, app_name=app_name)
 
 
 if __name__ == '__main__':

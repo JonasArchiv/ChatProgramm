@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../static/bootstrap-5.3.3-dist/css/bootstrap.min.css">
+    <script src="../static/bootstrap-5.3.3-dist/js/bootstrap.min.js"></script>
+    <title> {{ app_name }} - Chat with {{ user_partner.username }}</title>
+</head>
+<body>
+    <h1>Chat with {{user_partner.username}}</h1>
+
+    <div id="message-container">
+        {% for message in messages %}
+            <p>{{ message.created_at.strftime('%Y-%m-%d %H:%M:%S') }} - {{ message.text }}</p>
+        {% endfor %}
+    </div>
+
+    <form method="post">
+        <label>
+            <textarea name="message" placeholder="Type your message..." required></textarea>
+        </label>
+        <button type="submit">Send</button>
+    </form>
+</body>
+</html>
